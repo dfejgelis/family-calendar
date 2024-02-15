@@ -10,6 +10,7 @@
     "@types/node": "^16.18.82",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
+    "eslint-import-resolver-typescript": "^3.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
@@ -20,7 +21,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test:nowatch": "react-scripts test --bail --watchAll=false --passWithNoTests",
+    "eject": "react-scripts eject",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "precommit": "lint-staged",
+    "prepare": "husky"
   },
   "eslintConfig": {
     "extends": [
@@ -41,6 +47,35 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "commitizen": "^4.3.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^27.8.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json}": [
+      "npm run lint",
+      "npm run format",
+      "npm run test:nowatch"
+    ],
+    "src/**/*.{css,scss,md}": [
+      "npm run format",
+      "npm run test:nowatch"
+    ]
   }
 }
