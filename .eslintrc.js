@@ -15,12 +15,14 @@ module.exports = {
   },
   plugins: ['react', '@typescript-eslint', 'jest'],
   rules: {
+    'object-curly-newline': 'off',
     'react/jsx-filename-extension': [
       1,
       {
         extensions: ['.tsx'],
       },
     ],
+    'react/jsx-one-expression-per-line': 0,
     semi: 0,
     'import/extensions': [
       'error',
