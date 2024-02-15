@@ -4,7 +4,7 @@ module.exports = {
     es2021: true,
     'jest/globals': true,
   },
-  extends: ['plugin:react/recommended', 'airbnb'],
+  extends: ['airbnb-base', 'prettier'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -13,17 +13,27 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['react', '@typescript-eslint', 'jest'],
+  plugins: ['react', '@typescript-eslint', 'jest', 'prettier'],
   rules: {
     'object-curly-newline': 'off',
+    'prettier/prettier': 'error',
     'react/jsx-filename-extension': [
       1,
       {
         extensions: ['.tsx'],
       },
     ],
-    'react/jsx-one-expression-per-line': 0,
-    semi: 0,
+    'react/jsx-one-expression-per-line': 'off',
+    'no-unused-vars': [
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
+    '@typescript-eslint/no-unused-vars': 'off',
+    semi: 'off',
     'import/extensions': [
       'error',
       'ignorePackages',
