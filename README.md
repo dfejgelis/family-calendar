@@ -1,5 +1,7 @@
 # Family Calendar
 
+You can see a live version in https://family-calendar-dfejgelis.vercel.app/
+
 ## Development Setup
 
 1. Clone this repository
