@@ -1,8 +1,19 @@
 import React from 'react'
 import logo from './logo.svg'
 import './App.css'
+import Login from '../../components/Login/Login'
 
 function App() {
+  const [authenticated, setAuthenticated] = React.useState(false)
+
+  if (!authenticated) {
+    return (
+      <div className="App">
+        <Login onSuccess={() => setAuthenticated(true)} />
+      </div>
+    )
+  }
+
   return (
     <div className="App">
       <header className="App-header">
