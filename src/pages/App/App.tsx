@@ -3,12 +3,13 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import logo from './logo.svg'
 import './App.css'
 import Login from '../../components/Login/Login'
+import usePersistantState from '../../hooks/usePersistentState'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme()
 
 function App() {
-  const [authenticated, setAuthenticated] = React.useState(false)
+  const [authenticated, setAuthenticated] = usePersistantState('authenticated')
 
   if (!authenticated) {
     return (
