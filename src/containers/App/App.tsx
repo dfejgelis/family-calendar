@@ -4,10 +4,10 @@ import './App.css'
 
 import { EventInput } from '@fullcalendar/core'
 
-import Login from '../../components/Login/Login'
+import Login from '../Login/Login'
 import usePersistantState from '../../hooks/usePersistentState'
-import Chat from '../../components/Chat/Chat'
-import Calendar from '../../components/Calendar/Calendar'
+import Chat from '../Chat/Chat'
+import Calendar from '../Calendar/Calendar'
 
 const defaultTheme = createTheme()
 
