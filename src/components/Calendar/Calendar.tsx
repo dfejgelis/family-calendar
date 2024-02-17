@@ -1,16 +1,23 @@
 /* eslint-disable */
 import React from 'react'
-import { formatDate } from '@fullcalendar/core'
+import {
+  formatDate,
+  DateSelectArg,
+  EventApi,
+  EventClickArg,
+  EventContentArg,
+  EventInput,
+} from '@fullcalendar/core'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-// import { INITIAL_EVENTS, createEventId } from './event-utils'
+import rrulePlugin from '@fullcalendar/rrule'
 
 let eventGuid = 0
 let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
 
-export const INITIAL_EVENTS = [
+export const INITIAL_EVENTS: EventInput[] = [
   {
     id: createEventId(),
     title: 'All-day event',
@@ -20,6 +27,17 @@ export const INITIAL_EVENTS = [
     id: createEventId(),
     title: 'Timed event',
     start: todayStr + 'T12:00:00',
+    end: todayStr + 'T14:00:00',
+    allDay: false,
+  },
+  {
+    id: createEventId(),
+    title: 'my recurring event',
+    rrule: {
+      freq: 'daily',
+      dtstart: '2024-02-01T10:30:00', // will also accept '20120201T103000'
+      until: '2024-06-01', // will also accept '20120201'
+    },
   },
 ]
 
@@ -39,13 +57,13 @@ export default class DemoApp extends React.Component {
         {this.renderSidebar()}
         <div className="demo-app-main">
           <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
               right: 'dayGridMonth,timeGridWeek,timeGridDay',
             }}
-            initialView="dayGridMonth"
+            initialView="timeGridWeek"
             editable={true}
             selectable={true}
             selectMirror={true}
@@ -71,14 +89,6 @@ export default class DemoApp extends React.Component {
     return (
       <div className="demo-app-sidebar">
         <div className="demo-app-sidebar-section">
-          <h2>Instructions</h2>
-          <ul>
-            <li>Select dates and you will be prompted to create a new event</li>
-            <li>Drag, drop, and resize events</li>
-            <li>Click an event to delete it</li>
-          </ul>
-        </div>
-        <div className="demo-app-sidebar-section">
           <label>
             <input
               type="checkbox"
@@ -102,7 +112,7 @@ export default class DemoApp extends React.Component {
     })
   }
 
-  handleDateSelect = (selectInfo) => {
+  handleDateSelect = (selectInfo: DateSelectArg) => {
     let title = prompt('Please enter a new title for your event')
     let calendarApi = selectInfo.view.calendar
 
@@ -119,20 +129,20 @@ export default class DemoApp extends React.Component {
     }
   }
 
-  handleEventClick = (clickInfo) => {
+  handleEventClick = (clickInfo: EventClickArg) => {
     if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
       clickInfo.event.remove()
     }
   }
 
-  handleEvents = (events) => {
+  handleEvents = (events: EventApi[]) => {
     this.setState({
       currentEvents: events,
     })
   }
 }
 
-function renderEventContent(eventInfo) {
+function renderEventContent(eventInfo: EventContentArg) {
   return (
     <>
       <b>{eventInfo.timeText}</b>
@@ -141,11 +151,12 @@ function renderEventContent(eventInfo) {
   )
 }
 
-function renderSidebarEvent(event) {
+function renderSidebarEvent(event: EventApi) {
+  if (!event.start) return null
   return (
     <li key={event.id}>
       <b>{formatDate(event.start, { year: 'numeric', month: 'short', day: 'numeric' })}</b>
-      <i>{event.title}</i>
+      <i> - {event.title}</i>
     </li>
   )
 }
