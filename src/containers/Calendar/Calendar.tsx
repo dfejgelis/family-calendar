@@ -7,11 +7,12 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 // import interactionPlugin from '@fullcalendar/interaction'
 import rrulePlugin from '@fullcalendar/rrule'
 import { EventModel } from '../../models'
+import './Calendar.css'
 
 const Calendar: React.FC<{ events: EventModel[] }> = ({ events }) => {
   return (
     <div className="calendar-container">
-      {
+      {process.env.REACT_APP_DEBUG_MODE && (
         <ul>
           {events.map((event) => (
             <li key={event.id}>
@@ -25,7 +26,7 @@ const Calendar: React.FC<{ events: EventModel[] }> = ({ events }) => {
             </li>
           ))}
         </ul>
-      }
+      )}
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, rrulePlugin]}
         headerToolbar={{

@@ -110,7 +110,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
         bgcolor: 'grey.200',
       }}
     >
-      <div>{JSON.stringify(messages, undefined, 2)}</div>
+      {process.env.REACT_APP_DEBUG_MODE && <div>{JSON.stringify(messages, undefined, 2)}</div>}
       <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
         <form onSubmit={handleSend}>
           <Grid container spacing={2}>
