@@ -15,6 +15,7 @@ module.exports = {
   },
   plugins: ['react', '@typescript-eslint', 'jest', 'prettier'],
   rules: {
+    'no-alert': 'off',
     'no-console': 'off',
     'object-curly-newline': 'off',
     'prettier/prettier': 'error',

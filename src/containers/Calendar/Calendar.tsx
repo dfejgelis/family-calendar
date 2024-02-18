@@ -1,13 +1,14 @@
 /* eslint-disable */
 import React from 'react'
-import { formatDate, EventContentArg, EventInput } from '@fullcalendar/core'
+import { formatDate } from '@fullcalendar/core'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 // import interactionPlugin from '@fullcalendar/interaction'
 import rrulePlugin from '@fullcalendar/rrule'
+import { EventModel } from '../../models'
 
-const Calendar: React.FC<{ events: EventInput[] }> = ({ events }) => {
+const Calendar: React.FC<{ events: EventModel[] }> = ({ events }) => {
   return (
     <div className="calendar-container">
       {

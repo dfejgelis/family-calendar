@@ -1,17 +1,8 @@
 import React from 'react'
-import {
-  Avatar,
-  Box,
-  Select,
-  MenuItem,
-  TextField,
-  Button,
-  Typography,
-  Grid,
-  Paper,
-} from '@mui/material'
+import { Avatar, Box, TextField, Button, Typography, Grid, Paper } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
-import { EventInput } from '@fullcalendar/core'
+import EventForm from '../../components/EventForm/EventForm'
+import { EventModel } from '../../models'
 
 class Message {
   id: number
@@ -26,6 +17,19 @@ class Message {
     this.sender = sender
   }
 }
+const examples = [
+  {
+    id: '100-b',
+    title: 'basket',
+    rrule: {
+      freq: 'weekly',
+      byweekday: ['mo', 'we', 'fr'],
+      dtstart: '2024-02-01T17:00:00',
+      // dtend: '2024-02-01T18:00:00',
+      until: '2024-06-01',
+    },
+  },
+]
 
 const MessageFC = ({ message }: { message: Message }) => {
   const isBot = message.sender === 'bot'
@@ -66,43 +70,36 @@ const MessageFC = ({ message }: { message: Message }) => {
 }
 
 type ChatUIProps = {
-  saveEvent: (_event: EventInput) => void
+  saveEvent: (_: EventModel) => EventModel
 }
 
 const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
   const [input, setInput] = React.useState('')
   const [messages, setMessages] = React.useState<Message[]>([])
+  const [partialEvent, setPartialEvent] = React.useState<Partial<EventModel> | undefined>()
+
+  const selectExample = (eventForSave: Partial<EventModel>) => {
+    console.log('selectExample', eventForSave)
+    setPartialEvent(eventForSave)
+  }
 
   const handleSend = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (input.trim() !== '') {
-      saveEvent({
+      selectExample({
         id: '100',
-        title: 'from input',
+        title: input.trim(),
         rrule: {
           freq: 'weekly',
-          byweekday: input.split(' '),
+          byweekday: ['mo', 'tu', 'wed', 'th', 'fr'],
           dtstart: '2024-02-01T11:00:00',
           until: '2024-06-01',
         },
       })
-      // setMessages([...messages, new Message(messages.length + 1, input, 'user')])
+      setMessages([...messages, new Message(messages.length + 1, input, 'user')])
       setInput('')
     }
   }
-
-  const examples = [
-    {
-      title: 'basket',
-      rrule: {
-        freq: 'weekly',
-        byweekday: ['mo', 'we', 'fr'],
-        dtstart: '2024-02-01T17:00:00',
-        dtend: '2024-02-01T18:00:00',
-        until: '2024-06-01',
-      },
-    },
-  ]
 
   return (
     <Box
@@ -128,15 +125,13 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
                 onChange={(event) => setInput(event.target.value)}
               />
             </Grid>
-            {/* <Grid item xs={5}>
-              <Select fullWidth size="small" onChange={(event) => console.log(event.target.value)}>
-                {examples.map((value, idx) => (
-                  <MenuItem key={`example-${idx}`} value={JSON.stringify(value)}>
-                    {value.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Grid> */}
+            <Grid item xs={5}>
+              {examples.map((value, idx) => (
+                <Button onClick={() => selectExample(value)} key={`example-${idx}`}>
+                  Example {value.title}
+                </Button>
+              ))}
+            </Grid>
             <Grid item xs={2}>
               <Button
                 fullWidth
@@ -160,6 +155,15 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
             ))}
         </Box>
       </Box>
+      {partialEvent && (
+        <Box>
+          <EventForm
+            saveEvent={saveEvent}
+            event={partialEvent}
+            onCancel={() => setPartialEvent({})}
+          />
+        </Box>
+      )}
     </Box>
   )
 }

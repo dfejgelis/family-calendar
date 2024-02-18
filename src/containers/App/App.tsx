@@ -2,12 +2,11 @@ import React from 'react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import './App.css'
 
-import { EventInput } from '@fullcalendar/core'
-
 import Login from '../Login/Login'
 import usePersistantState from '../../hooks/usePersistentState'
 import Chat from '../Chat/Chat'
 import Calendar from '../Calendar/Calendar'
+import { EventModel } from '../../models'
 
 const defaultTheme = createTheme()
 
@@ -50,17 +49,21 @@ const INITIAL_EVENTS = [
 ]
 function App() {
   const [authenticated, setAuthenticated] = usePersistantState('authenticated')
-  const [events, setEvents] = React.useState<EventInput[]>(INITIAL_EVENTS)
+  const [events, setEvents] = React.useState<EventModel[]>(INITIAL_EVENTS)
 
-  const saveEvent = (eventFresh: EventInput) => {
+  const saveEvent = (eventForUpdate: EventModel) => {
+    console.log('saveEvent', eventForUpdate)
+    const eventFresh = eventForUpdate
+    if (!eventFresh.id) eventFresh.id = (events.length + 1).toString()
+
     const index = events.findIndex((event) => event.id === eventFresh.id)
-
     if (index !== -1) {
-      // Update existing eventFresh
+      // Update existing with new one
       setEvents([...events.slice(0, index), { ...eventFresh }, ...events.slice(index + 1)])
     } else {
       setEvents([...events, eventFresh])
     }
+    return eventFresh
   }
 
   console.log('all', events)
