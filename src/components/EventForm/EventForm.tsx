@@ -20,20 +20,54 @@ interface IProps {
   onCancel: () => void
 }
 
+type ErrorsType = {
+  title?: string
+  dtstart?: string
+}
+
 const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel }) => {
-  const [data, setData] = React.useState(iniialData || {})
-  const { title, start, end, allDay } = data
+  const [data, setData] = React.useState<Partial<EventModel>>(iniialData || {})
+  const [errors, setErrors] = React.useState<ErrorsType>({})
+  const { title } = data
+
+  // FIXME in EventModel (:@)
+  // @ts-ignore
+  const dtstart = data.rrule?.dtstart
+  // @ts-ignore
+  const until = data.rrule?.until
+
+  const checkErrors = () => {
+    const errorsNew = { ...errors }
+
+    if (!data.title) errorsNew.title = 'Please enter a title'
+    if (!dtstart) errorsNew.dtstart = 'Please enter a start date'
+
+    setErrors(errorsNew)
+  }
+
+  const onCancelHandler = () => {
+    if (!Object.keys(data)) onCancel()
+    // TODO: Make this dialog look nice ;)
+    else if (window.confirm('are you sure to discard changes?')) onCancel()
+  }
+
+  const onSaveHandler = () => {
+    saveEvent({
+      ...data,
+      rrule: {
+        freq: 'weekly',
+        dtstart,
+        until,
+      },
+    })
+  }
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     setData((prevState) => ({
       ...prevState,
       [event.target.name]: event.target.value,
     }))
-  }
-
-  const isDisabled = () => {
-    const checkend = () => !allDay && end === null
-    return title === '' || start === null || checkend()
+    checkErrors()
   }
 
   return (
@@ -52,6 +86,7 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
             label="title"
             type="text"
             fullWidth
+            error={Boolean(errors.title)}
             variant="outlined"
             onChange={onChange}
           />
@@ -59,14 +94,13 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
             <Box mb={2} mt={5}>
               <DateTimePicker
                 label="Start date"
-                value={start}
+                value={dtstart}
                 ampm={true}
                 minutesStep={30}
                 onChange={(newValue) =>
                   setData((prevState) => ({
                     ...prevState,
-                    // start: new Date(newValue!),
-                    start: newValue,
+                    dtstart: newValue,
                   }))
                 }
                 // renderInput={(params) => <TextField {...params} />}
@@ -75,15 +109,14 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
 
             <DateTimePicker
               label="End date"
-              disabled={allDay}
-              minDate={start}
-              minutesStep={30}
+              minDate={dtstart}
+              minutesStep={15}
               ampm={true}
-              value={end}
+              value={until}
               onChange={(newValue) =>
                 setData((prevState) => ({
                   ...prevState,
-                  end: newValue,
+                  until: newValue,
                 }))
               }
               //   renderInput={(params) => <TextField {...params} />}
@@ -92,18 +125,13 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button
-          color="error"
-          onClick={() => {
-            if (window.confirm('are you sure to discard changes?')) onCancel()
-          }}
-        >
+        <Button color="error" onClick={() => onCancelHandler()}>
           Cancel
         </Button>
         <Button
-          disabled={isDisabled()}
+          disabled={Object.keys(errors).length > 0}
           color="success"
-          onClick={() => saveEvent(data)}
+          onClick={() => onSaveHandler()}
           variant="outlined"
         >
           Save Event

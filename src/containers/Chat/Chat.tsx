@@ -79,7 +79,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
   const [partialEvent, setPartialEvent] = React.useState<Partial<EventModel> | undefined>()
 
   const selectExample = (eventForSave: Partial<EventModel>) => {
-    console.log('selectExample', eventForSave)
+    // console.log('selectExample', eventForSave)
     setPartialEvent(eventForSave)
   }
 
@@ -91,9 +91,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
         title: input.trim(),
         rrule: {
           freq: 'weekly',
-          byweekday: ['mo', 'tu', 'wed', 'th', 'fr'],
+          byweekday: ['mo', 'tu', 'we', 'th', 'fr'],
           dtstart: '2024-02-01T11:00:00',
-          until: '2024-06-01',
+          // until: '2024-06-01',
         },
       })
       setMessages([...messages, new Message(messages.length + 1, input, 'user')])
@@ -158,9 +158,13 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
       {partialEvent && (
         <Box>
           <EventForm
-            saveEvent={saveEvent}
+            saveEvent={(props) => {
+              const newEvent = saveEvent(props)
+              setPartialEvent(undefined)
+              return newEvent
+            }}
             event={partialEvent}
-            onCancel={() => setPartialEvent({})}
+            onCancel={() => setPartialEvent(undefined)}
           />
         </Box>
       )}
