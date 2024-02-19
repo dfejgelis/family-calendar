@@ -28,6 +28,7 @@ const examples = {
   'Basketball Practice Complete':
     'Julian will go to basket on Mondays, Tuesdays and Saturdays starting today at 10am',
   Education: 'What can you do?',
+  'Delete Event': 'Delete basketball event',
 }
 
 const MessageFC = ({ message }: { message: IMessage }) => {
@@ -117,6 +118,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
         // height: '100vh',
         display: 'flex',
         flexDirection: 'column',
+        // border: '1px solid #ccc',
       }}
     >
       {process.env.REACT_APP_DEBUG_MODE && (
@@ -201,9 +203,17 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
         </Box>
       )}
       {Boolean(messages.length) && (
-        <Button fullWidth onClick={() => clearMessages()} aria-label="close">
-          <ArrowDropUpIcon />
-        </Button>
+        <Box>
+          <Button
+            fullWidth
+            onClick={() => clearMessages()}
+            variant="contained"
+            size="small"
+            aria-label="close"
+          >
+            <ArrowDropUpIcon fontSize="small" />
+          </Button>
+        </Box>
       )}
     </Box>
   )

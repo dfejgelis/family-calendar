@@ -67,9 +67,7 @@ const Calendar: React.FC<ICalendar> = ({ session, events, deleteEvent }) => {
         editable
         dayMaxEvents
         events={eventsForCalendar}
-        eventClick={({ event }) => {
-          if (confirm(`are you sure you want to delete ${event.title}`)) deleteEvent(event.id)
-        }}
+        eventClick={({ event }) => deleteEvent(event.id)}
       />
     </Box>
   )

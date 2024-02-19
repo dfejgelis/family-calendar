@@ -49,8 +49,12 @@ export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
   const deleteEvent = (id: string) => {
     if (!events) return
     const index = events.findIndex((event) => event.id === id)
-    if (index !== -1) setEvents([...events.slice(0, index), ...events.slice(index + 1)])
-    showNotification('Event deleted', 'success')
+    if (index !== -1) {
+      if (window.confirm(`are you sure you want to delete ${events[index].title}`)) {
+        setEvents([...events.slice(0, index), ...events.slice(index + 1)])
+        showNotification('Event deleted', 'success')
+      }
+    }
   }
 
   return (
