@@ -1,5 +1,5 @@
 import { createAssistantResponse } from '.'
-import { FamilyCalendarPromptContext } from './prompts/family_calendar'
+import { FamilyCalendarPromptContext } from './prompts/familyCalendar'
 
 const contextBase: FamilyCalendarPromptContext = {
   name: 'Naruto',

@@ -4,6 +4,7 @@ export interface IFamilyCalendarPromptContextFamilyMember {
 }
 
 export interface FamilyCalendarPromptContext {
+  currentDateTime?: string
   name: string
   eventsForPrompt: object
   familyMembers: IFamilyCalendarPromptContextFamilyMember[]
@@ -170,6 +171,7 @@ Weekdays are:
 Family Events:
 ${JSON.stringify(context.eventsForPrompt, null, 2)}
 
+Current Datetime: "${context.currentDateTime || new Date().toJSON()}"
 
 ### IMPORTANT INSTRUCTIONS -- PAY ATTENTION! ###
 

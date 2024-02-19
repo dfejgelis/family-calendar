@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import OpenAI from 'openai'
 
-import FamilyCalendarPrompt, { FamilyCalendarPromptContext } from './prompts/family_calendar'
+import FamilyCalendarPrompt, { FamilyCalendarPromptContext } from './prompts/familyCalendar'
 
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -45,11 +45,12 @@ export const createAssistantResponse = async (
     content: userInput,
   }
 
-  console.log('prompt', FamilyCalendarPrompt(context))
+  const prompt = FamilyCalendarPrompt(context)
+  console.log('prompt', prompt)
 
   const response = await getAssistantMessage({
     messages: [...messages, userMessage],
-    prompt: FamilyCalendarPrompt(context),
+    prompt,
   })
 
   console.log('choices', response.choices[0])
