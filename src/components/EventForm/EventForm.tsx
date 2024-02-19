@@ -1,46 +1,67 @@
 import React, { ChangeEvent } from 'react'
-import { Box, Button, CssBaseline, FormControl, Stack, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers'
-import { ByWeekDayType, EventModel } from '../../models'
+import { WeekDayType, EventModel, FamilyMemberModel } from '../../models'
 import WeekdayPicker from '../WeekdayPicker/WeekdayPicker'
 
+type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P] | null>
+}
+
 interface IProps {
-  event?: Partial<EventModel>
+  familyMembers: FamilyMemberModel[]
+  event?: RecursivePartial<EventModel>
   saveEvent: (_event: EventModel) => EventModel
   onCancel: () => void
 }
 
 type ErrorsType = {
   title?: string
-  dtstart?: string
+  start?: string
   weekdays?: string
+  familyMember?: string
 }
 
-const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel }) => {
-  const [data, setData] = React.useState<Partial<EventModel>>(iniialData || {})
-  const [weekdays, setWeekdays] = React.useState<ByWeekDayType[]>(
-    // @ts-ignore: FIXME in EventModel (:@)
-    iniialData?.rrule?.byweekday || []
-  )
+const EventForm: React.FC<IProps> = ({
+  event: initialData,
+  saveEvent,
+  onCancel,
+  familyMembers,
+}) => {
+  const [data, setData] = React.useState<RecursivePartial<EventModel>>(initialData || {})
+  // @ts-ignore
+  const [weekdays, setWeekdays] = React.useState<WeekDayType[]>(initialData?.weekdays || [])
+  const [familyMember, setFamilyMember] = React.useState(initialData?.familyMember || '')
   const [errors, setErrors] = React.useState<ErrorsType>({})
-  const { title } = data
-
-  // @ts-ignore: FIXME in EventModel (:@)
-  const { dtstart, until } = data.rrule
+  const { title, start, until } = data
 
   const checkErrors = () => {
     const errorsNew: ErrorsType = {}
 
     if (!data.title) errorsNew.title = 'Please enter a title'
-    if (!dtstart) errorsNew.dtstart = 'Please enter a start date'
+    if (!start) errorsNew.start = 'Please enter a start date'
     if (!weekdays.length) errorsNew.weekdays = 'Please select week days'
+    if (!familyMember) errorsNew.familyMember = 'Please select family member'
 
-    if (process.env.REACT_APP_DEBUG_MODE) console.log('errors', errorsNew)
+    if (process.env.REACT_APP_DEBUG_MODE) {
+      console.log('data', data)
+      console.log('errors', errorsNew)
+    }
     setErrors(errorsNew)
   }
 
-  const changeData = (newData: Partial<EventModel>) => {
+  const changeData = (newData: RecursivePartial<EventModel>) => {
     setData(newData)
   }
 
@@ -53,18 +74,18 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
   const onSaveHandler = () => {
     saveEvent({
       ...data,
-      rrule: {
-        freq: 'weekly',
-        dtstart,
-        until,
-        byweekday: weekdays,
-      },
+      familyMember,
+      // @ts-ignore
+      start,
+      // @ts-ignore
+      until,
+      weekdays,
     })
   }
 
   React.useEffect(() => {
     checkErrors()
-  }, [weekdays, data])
+  }, [weekdays, data, familyMember])
 
   return (
     <FormControl>
@@ -88,6 +109,24 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
             })
           }}
         />
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">Family Member</InputLabel>
+          <Select
+            value={familyMember}
+            labelId="demo-simple-select-label"
+            label="Member"
+            error={Boolean(errors.familyMember?.length)}
+            onChange={(event) => setFamilyMember(event.target.value)}
+          >
+            {familyMembers.map((member) => (
+              <MenuItem value={member.name} key={`member-${member.name}`}>
+                {member.name}
+              </MenuItem>
+            ))}
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+          </Select>
+        </FormControl>
         <Box display="flex" alignItems="center" mb={2}>
           <WeekdayPicker
             error={Boolean(errors.weekdays)}
@@ -99,14 +138,14 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
           <Box mb={2} mt={5}>
             <DateTimePicker
               label="Start date"
-              name="dtstart"
-              value={dtstart}
+              name="start"
+              value={start}
               ampm={true}
               minutesStep={30}
               onChange={(newValue) =>
                 changeData({
                   ...data,
-                  dtstart: newValue,
+                  start: newValue,
                 })
               }
             />
@@ -114,7 +153,7 @@ const EventForm: React.FC<IProps> = ({ event: iniialData, saveEvent, onCancel })
 
           <DateTimePicker
             label="End date"
-            minDate={dtstart}
+            minDate={start}
             minutesStep={15}
             ampm={true}
             value={until}

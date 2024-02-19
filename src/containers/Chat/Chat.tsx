@@ -1,38 +1,25 @@
 import React from 'react'
 import { Avatar, Box, TextField, Button, Typography, Grid, Paper } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
+// import { useChatCompletion } from 'openai-streaming-hooks'
+// import { ChatMessage } from 'openai-streaming-hooks/src/types'
 import EventForm from '../../components/EventForm/EventForm'
 import { EventModel } from '../../models'
+import { ISession } from '../../contexts/SessionContext'
+import FamilyCalendarPrompt from '../../lib/ai/prompts/familyCalendar'
+import useAI from '../../hooks/useAI'
+import { IAssistantResponse, IMessage } from '../../lib/ai'
 
-class Message {
-  id: number
-
-  text: string
-
-  sender: 'bot' | 'user'
-
-  constructor(id: number, text: string, sender: 'bot' | 'user') {
-    this.id = id
-    this.text = text
-    this.sender = sender
-  }
+const examples = {
+  'Basketball Practice Partial': 'Julian will go to basket on Mondays and Thursdays',
+  'Basketball Practice Complete':
+    'Julian will go to basket on Mondays, Tuesdays and Saturdays starting today at 10am',
+  Education: 'What can you do?',
 }
-const examples = [
-  {
-    id: '100-b',
-    title: 'basket',
-    rrule: {
-      freq: 'weekly',
-      byweekday: ['mo', 'we', 'fr'],
-      dtstart: '2024-02-01T17:00:00',
-      // dtend: '2024-02-01T18:00:00',
-      until: '2024-06-01',
-    },
-  },
-]
 
-const MessageFC = ({ message }: { message: Message }) => {
-  const isBot = message.sender === 'bot'
+const MessageFC = ({ message }: { message: IMessage }) => {
+  if (message.role === 'system') return null
+  const isBot = message.role === 'assistant'
 
   return (
     <Box
@@ -62,7 +49,7 @@ const MessageFC = ({ message }: { message: Message }) => {
             borderRadius: isBot ? '20px 20px 20px 5px' : '20px 20px 5px 20px',
           }}
         >
-          <Typography variant="body1">{message.text}</Typography>
+          <Typography variant="body1">{message.content}</Typography>
         </Paper>
       </Box>
     </Box>
@@ -70,33 +57,42 @@ const MessageFC = ({ message }: { message: Message }) => {
 }
 
 type ChatUIProps = {
+  session: ISession
+  events: EventModel[]
   saveEvent: (_: EventModel) => EventModel
+  deleteEvent: (_: string) => void
 }
 
-const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
+const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent }) => {
   const [input, setInput] = React.useState('')
-  const [messages, setMessages] = React.useState<Message[]>([])
-  const [partialEvent, setPartialEvent] = React.useState<Partial<EventModel> | undefined>()
 
-  const selectExample = (eventForSave: Partial<EventModel>) => {
-    // console.log('selectExample', eventForSave)
-    setPartialEvent(eventForSave)
+  const prompt = FamilyCalendarPrompt({
+    familyMembers: session.family,
+    name: session.user || '',
+    eventsForPrompt: events,
+  })
+
+  const { messages, submit, loading, clearMessages } = useAI({ prompt })
+
+  const selectExample = (userInput: string) => {
+    submit(userInput)
   }
+
+  const assistantResponse: Partial<IAssistantResponse> = messages[messages.length - 1]?.data || {}
+  const { action } = assistantResponse
+
+  React.useEffect(() => {
+    if (action === 'stop') clearMessages()
+    if (action === 'eventDelete' && assistantResponse?.event?.id) {
+      deleteEvent(assistantResponse.event.id)
+      clearMessages()
+    }
+  }, [action])
 
   const handleSend = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (input.trim() !== '') {
-      selectExample({
-        id: '100',
-        title: input.trim(),
-        rrule: {
-          freq: 'weekly',
-          byweekday: ['mo', 'tu', 'we', 'th', 'fr'],
-          dtstart: '2024-02-01T11:00:00',
-          // until: '2024-06-01',
-        },
-      })
-      setMessages([...messages, new Message(messages.length + 1, input, 'user')])
+      submit(input.trim())
       setInput('')
     }
   }
@@ -110,7 +106,15 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
         bgcolor: 'grey.200',
       }}
     >
-      {process.env.REACT_APP_DEBUG_MODE && <div>{JSON.stringify(messages, undefined, 2)}</div>}
+      {process.env.REACT_APP_DEBUG_MODE && (
+        <div>
+          {JSON.stringify(
+            messages.filter((msg) => msg.role !== 'system'),
+            undefined,
+            2
+          )}
+        </div>
+      )}
       <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
         <form onSubmit={handleSend}>
           <Grid container spacing={2}>
@@ -126,9 +130,15 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
               />
             </Grid>
             <Grid item xs={5}>
-              {examples.map((value, idx) => (
-                <Button onClick={() => selectExample(value)} key={`example-${idx}`}>
-                  Example {value.title}
+              {Object.keys(examples).map((key, idx) => (
+                <Button
+                  onClick={() => {
+                    // @ts-ignore
+                    selectExample(examples[key])
+                  }}
+                  key={`example-${idx}`}
+                >
+                  {key}
                 </Button>
               ))}
             </Grid>
@@ -137,11 +147,11 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
                 fullWidth
                 size="large"
                 color="primary"
+                disabled={loading}
                 variant="contained"
-                endIcon={<SendIcon />}
                 type="submit"
               >
-                Send
+                <SendIcon />
               </Button>
             </Grid>
           </Grid>
@@ -150,21 +160,21 @@ const ChatUI: React.FC<ChatUIProps> = ({ saveEvent }) => {
           {messages
             .slice()
             .reverse()
-            .map((message) => (
-              <MessageFC key={message.id} message={message} />
+            .map((message, idx) => (
+              <MessageFC key={`message-${idx}`} message={message} />
             ))}
         </Box>
       </Box>
-      {partialEvent && (
+      {action && ['eventCreate', 'eventEdit'].includes(action) && (
         <Box>
           <EventForm
+            familyMembers={session.family}
             saveEvent={(props) => {
-              const newEvent = saveEvent(props)
-              setPartialEvent(undefined)
-              return newEvent
+              clearMessages()
+              return saveEvent(props)
             }}
-            event={partialEvent}
-            onCancel={() => setPartialEvent(undefined)}
+            event={assistantResponse.event}
+            onCancel={clearMessages}
           />
         </Box>
       )}

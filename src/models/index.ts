@@ -1,13 +1,16 @@
-import { EventInput } from '@fullcalendar/core'
+export type WeekDayType = 'mo' | 'tu' | 'we' | 'th' | 'fr' | 'sa' | 'su'
 
-export type ByWeekDayType = 'mo' | 'tu' | 'we' | 'th' | 'fr' | 'sa' | 'su'
+export interface EventModel {
+  id: string | null
+  title: string
+  familyMember: string
+  weekdays: WeekDayType[]
+  start: string
+  until?: string | null
+}
 
-export interface EventModel extends EventInput {
-  //   id: string
-  // rrule: {
-  //   freq: 'weekly'
-  //   byweekday: ByWeekDayType[]
-  //   dtstart: string
-  //   dtend?: string
-  // }
+export interface FamilyMemberModel {
+  name: string
+  color: string
+  description: string
 }

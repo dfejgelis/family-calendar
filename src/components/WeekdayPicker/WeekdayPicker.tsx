@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { ToggleButton, ToggleButtonGroup, FormLabel } from '@mui/material'
-import { ByWeekDayType } from '../../models'
+import { WeekDayType } from '../../models'
 
-const weekdays: ByWeekDayType[] = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']
+const weekdays: WeekDayType[] = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']
 
 interface WeekdayPickerProps {
-  selectedWeekdays: ByWeekDayType[]
-  onWeekdayChange: (_selectedWeekdays: ByWeekDayType[]) => void
+  selectedWeekdays: WeekDayType[]
+  onWeekdayChange: (_selectedWeekdays: WeekDayType[]) => void
   error?: boolean
 }
 
@@ -15,10 +15,8 @@ const WeekdayPicker: React.FC<WeekdayPickerProps> = ({
   onWeekdayChange,
   error = false,
 }) => {
-  const handleChange = (_: React.MouseEvent<HTMLElement>, selected: ByWeekDayType[]) => {
-    console.log('selected', selected)
+  const handleChange = (_: React.MouseEvent<HTMLElement>, selected: WeekDayType[]) =>
     onWeekdayChange(selected)
-  }
 
   return (
     <>

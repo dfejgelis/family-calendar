@@ -1,7 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import OpenAI from 'openai'
-
-import FamilyCalendarPrompt, { FamilyCalendarPromptContext } from './prompts/familyCalendar'
+import { WeekDayType } from '../../models'
 
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -9,51 +8,50 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 })
 
-type ActionType = 'eventEdit' | 'eventCreate' | 'stop' | 'moderated' | 'chat'
+type ActionType = 'eventEdit' | 'eventCreate' | 'eventDelete' | 'stop' | 'moderated' | 'chat'
 
-interface IAssistantResponse {
+export interface IAssistantResponse {
   expl: string
   msg: string
   action: ActionType
+  event: Partial<{
+    id: string
+    title: string
+    familyMember: string
+    start: string
+    until: string
+    weekdays: WeekDayType[]
+  }>
 }
 
-const getAssistantMessage = async ({
-  messages,
-  prompt,
-}: {
-  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
-  prompt: string
-}) =>
+export interface IMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+  data?: IAssistantResponse
+}
+
+const getAssistantMessage = async (messages: IMessage[]) =>
   openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [
-      {
-        role: 'system',
-        content: prompt,
-      },
-      ...messages,
-    ],
+    model: 'gpt-4-turbo-preview',
+    response_format: { type: 'json_object' },
+    messages,
   })
 
-export const createAssistantResponse = async (
-  userInput: string,
-  context: FamilyCalendarPromptContext,
-  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = []
-) => {
-  const userMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+const cleanMessagesForOpenAI = (messages: IMessage[]) =>
+  messages.map((message) => {
+    const newMessage = message
+    delete newMessage.data
+    return newMessage
+  })
+export const createAssistantResponse = async (userInput: string, messages: IMessage[] = []) => {
+  const userMessage: IMessage = {
     role: 'user',
     content: userInput,
   }
 
-  const prompt = FamilyCalendarPrompt(context)
-  console.log('prompt', prompt)
+  const response = await getAssistantMessage([...cleanMessagesForOpenAI(messages), userMessage])
 
-  const response = await getAssistantMessage({
-    messages: [...messages, userMessage],
-    prompt,
-  })
-
-  console.log('choices', response.choices[0])
+  console.log('OpenAI response', response.choices[0])
 
   const assistantData = JSON.parse(
     response.choices[0].message.content || '{}'
@@ -62,6 +60,6 @@ export const createAssistantResponse = async (
   return {
     role: response.choices[0].message.role,
     content: assistantData.msg,
-    data: assistantData,
+    data: assistantData || undefined,
   }
 }

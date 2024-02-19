@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from 'react'
-import { formatDate } from '@fullcalendar/core'
+import { EventInput, formatDate } from '@fullcalendar/core'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -9,7 +9,25 @@ import rrulePlugin from '@fullcalendar/rrule'
 import { EventModel } from '../../models'
 import './Calendar.css'
 
-const Calendar: React.FC<{ events: EventModel[] }> = ({ events }) => {
+interface ICalendar {
+  events: EventModel[]
+  deleteEvent: (_id: string) => void
+}
+
+const Calendar: React.FC<ICalendar> = ({ events, deleteEvent }) => {
+  let eventsForCalendar: EventInput[] = events.map((event) => {
+    return {
+      id: event.id as string,
+      title: event.title,
+      rrule: {
+        freq: 'weekly',
+        dtstart: event.start,
+        byweekday: event.weekdays,
+        // until: event.until,
+      },
+    }
+  })
+
   return (
     <div className="calendar-container">
       {process.env.REACT_APP_DEBUG_MODE && (
@@ -17,11 +35,6 @@ const Calendar: React.FC<{ events: EventModel[] }> = ({ events }) => {
           {events.map((event) => (
             <li key={event.id}>
               <strong>{event.id}</strong>
-              {event.start && (
-                <span>
-                  {formatDate(event.start, { year: 'numeric', month: 'short', day: 'numeric' })}
-                </span>
-              )}
               <i>{`${event.title} - ${JSON.stringify(event)}`}</i>
             </li>
           ))}
@@ -37,10 +50,12 @@ const Calendar: React.FC<{ events: EventModel[] }> = ({ events }) => {
         initialView="timeGridWeek"
         editable
         dayMaxEvents
-        events={events}
+        events={eventsForCalendar}
         // select={this.handleDateSelect}
         // eventContent={renderEventContent}
-        // eventClick={this.handleEventClick}
+        eventClick={({ event }) => {
+          if (confirm(`are you sure you want to delete ${event.title}`)) deleteEvent(event.id)
+        }}
         // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
       />
     </div>

@@ -6,20 +6,16 @@ import Chat from '../containers/Chat/Chat'
 import Calendar from '../containers/Calendar/Calendar'
 
 const Home = () => {
-  const {
-    session: { user },
-    setUser,
-  } = React.useContext(SessionContext) as SessionContextType
-  const { events, saveEvent } = React.useContext(EventsContext) as EventsContextType
+  const { session, setUser } = React.useContext(SessionContext) as SessionContextType
+  const eventsContext = React.useContext(EventsContext) as EventsContextType
 
-  console.log('user', user)
-
-  if (!user || events === undefined) return <Login onSuccess={() => setUser('Diego')} />
+  if (!session.user || eventsContext.events === undefined)
+    return <Login onSuccess={() => setUser('Diego')} />
 
   return (
     <>
-      <Chat saveEvent={saveEvent} />
-      <Calendar events={events} />
+      <Chat {...eventsContext} session={session} />
+      <Calendar {...eventsContext} />
     </>
   )
 }

@@ -2,11 +2,21 @@ import React, { createContext } from 'react'
 import usePersistantState from '../hooks/usePersistentState'
 import { EventModel } from '../models'
 
-const intialEvents: EventModel[] = []
+const intialEvents: EventModel[] = [
+  {
+    id: '123',
+    title: 'Basket',
+    familyMember: 'Julian',
+    start: '2024-02-15T10:00',
+    until: null,
+    weekdays: ['mo', 'th'],
+  },
+]
 
 export type EventsContextType = {
   events: EventModel[]
   saveEvent: (_eventForUpdate: EventModel) => EventModel
+  deleteEvent: (_id: string) => void
 }
 
 export const EventsContext = createContext<EventsContextType | null>(null)
@@ -35,8 +45,15 @@ export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
     return eventFresh
   }
 
+  const deleteEvent = (id: string) => {
+    console.log('about to delete', id)
+    if (!events) return
+    const index = events.findIndex((event) => event.id === id)
+    if (index !== -1) setEvents([...events.slice(0, index), ...events.slice(index + 1)])
+  }
+
   return (
-    <EventsContext.Provider value={{ events: events || [], saveEvent }}>
+    <EventsContext.Provider value={{ events: events || [], saveEvent, deleteEvent }}>
       {children}
     </EventsContext.Provider>
   )

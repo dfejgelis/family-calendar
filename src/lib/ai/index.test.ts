@@ -1,14 +1,14 @@
 import { createAssistantResponse } from '.'
-import { FamilyCalendarPromptContext } from './prompts/familyCalendar'
+import FamilyCalendarPrompt, { FamilyCalendarPromptContext } from './prompts/familyCalendar'
 
 const contextBase: FamilyCalendarPromptContext = {
   name: 'Naruto',
   eventsForPrompt: [],
   familyMembers: [
-    { name: 'Naruto', description: 'parent (user)' },
-    { name: 'Boruto', description: 'children' },
-    { name: 'Himawari', description: 'children' },
-    { name: 'Hinata', description: 'parent' },
+    { name: 'Naruto', description: 'parent (user)', color: 'red' },
+    { name: 'Boruto', description: 'children', color: 'red' },
+    { name: 'Himawari', description: 'children', color: 'red' },
+    { name: 'Hinata', description: 'parent', color: 'red' },
   ],
 }
 
@@ -26,10 +26,12 @@ describe.skip('createAssistantResponse', () => {
   it.each(createAssistantResponseParams)(
     'should return expectedish response',
     async (userContent: string, expectedAction: string, expectedishMsg: string) => {
-      const { content, data: assistantMessage } = await createAssistantResponse(
-        userContent,
-        contextBase
-      )
+      const { content, data: assistantMessage } = await createAssistantResponse(userContent, [
+        {
+          role: 'system',
+          content: FamilyCalendarPrompt(contextBase),
+        },
+      ])
 
       expect(assistantMessage.msg).toBe(content)
       expect(assistantMessage.msg).toContain(expectedishMsg)

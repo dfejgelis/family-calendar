@@ -1,19 +1,19 @@
 import React, { createContext } from 'react'
-import { IFamilyCalendarPromptContextFamilyMember } from '../lib/ai/prompts/familyCalendar'
+import { FamilyMemberModel } from '../models'
 import usePersistantState from '../hooks/usePersistentState'
 
 export interface ISession {
   user: string | null
-  family: IFamilyCalendarPromptContextFamilyMember[]
+  family: FamilyMemberModel[]
 }
 
 const initialSession: ISession = {
   user: null,
   family: [
-    { name: 'Diego', description: 'parent (user)' },
-    { name: 'Celeste', description: 'parent' },
-    { name: 'Sol', description: 'Sol' },
-    { name: 'Julian', description: 'Julian' },
+    { name: 'Diego', color: 'green', description: 'parent (user)' },
+    { name: 'Celeste', color: 'blue', description: 'parent' },
+    { name: 'Sol', color: 'orange', description: 'Sol' },
+    { name: 'Julian', color: 'purple', description: 'Julian' },
   ],
 }
 
