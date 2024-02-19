@@ -28,6 +28,8 @@ const examples = {
     'Julian will go to basket on Mondays, Tuesdays and Saturdays starting today at 10am',
   Education: 'What can you do?',
   'Delete Event': 'Delete basketball event',
+  Moderation: 'screw you, I want to kill myself',
+  Laughs: 'tell me a joke',
 }
 
 const MessageFC = ({ message }: { message: IMessage }) => {
@@ -94,6 +96,11 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
 
   const assistantResponse: Partial<IAssistantResponse> = messages[messages.length - 1]?.data || {}
   const { action } = assistantResponse
+
+  React.useEffect(() => {
+    const messagesToShow = messages
+    if (loading) messagesToShow.push({ role: 'assistant', content: '...' })
+  }, [loading, messages])
 
   React.useEffect(() => {
     if (action === 'stop') clearMessages()
@@ -180,6 +187,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
         </form>
 
         <Box sx={{ flexGrow: 1, overflow: 'auto', pt: 2 }}>
+          {loading && (
+            <MessageFC key={`message-loading`} message={{ role: 'assistant', content: '...' }} />
+          )}
           {messages
             .slice()
             .reverse()
