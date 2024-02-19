@@ -88,27 +88,31 @@ const EventForm: React.FC<IProps> = ({
   }, [weekdays, data, familyMember])
 
   return (
-    <FormControl>
-      <Typography variant="h4">Add event</Typography>
-      <Typography>To add a event, please fill in the information below.</Typography>
+    <FormControl fullWidth>
+      <Typography variant="h5">Add event</Typography>
+      <Typography variant="subtitle1">
+        To add a event, please fill in the information below.
+      </Typography>
       <Box component="form">
-        <TextField
-          name="title"
-          value={title}
-          margin="dense"
-          id="title"
-          label="title"
-          type="text"
-          fullWidth
-          error={Boolean(errors.title)}
-          variant="outlined"
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            changeData({
-              ...data,
-              [event.target.name]: event.target.value,
-            })
-          }}
-        />
+        <Box mb={2}>
+          <TextField
+            name="title"
+            value={title}
+            margin="dense"
+            id="title"
+            label="title"
+            type="text"
+            fullWidth
+            error={Boolean(errors.title)}
+            variant="outlined"
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              changeData({
+                ...data,
+                [event.target.name]: event.target.value,
+              })
+            }}
+          />
+        </Box>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Family Member</InputLabel>
           <Select
@@ -123,11 +127,9 @@ const EventForm: React.FC<IProps> = ({
                 {member.name}
               </MenuItem>
             ))}
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
           </Select>
         </FormControl>
-        <Box display="flex" alignItems="center" mb={2}>
+        <Box display="flex" alignItems="center" mb={2} mt={2}>
           <WeekdayPicker
             error={Boolean(errors.weekdays)}
             selectedWeekdays={weekdays}
@@ -166,7 +168,7 @@ const EventForm: React.FC<IProps> = ({
           />
         </LocalizationProvider>
       </Box>
-      <Stack direction="row" spacing={2} justifyContent="center">
+      <Stack direction="row" spacing={2} justifyContent="center" mt={3}>
         <Button color="error" onClick={() => onCancelHandler()}>
           Cancel
         </Button>

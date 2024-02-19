@@ -9,6 +9,7 @@ import rrulePlugin from '@fullcalendar/rrule'
 import { EventModel, FamilyMemberModel } from '../../models'
 import './Calendar.css'
 import { ISession } from '../../contexts/SessionContext'
+import { Box } from '@mui/material'
 
 interface ICalendar {
   session: ISession
@@ -32,13 +33,13 @@ const Calendar: React.FC<ICalendar> = ({ session, events, deleteEvent }) => {
         freq: 'weekly',
         dtstart: event.start,
         byweekday: event.weekdays,
-        // until: event.until,
+        until: event.until,
       },
     }
   })
 
   return (
-    <div className="calendar-container">
+    <Box>
       {process.env.REACT_APP_DEBUG_MODE && (
         <ul>
           {events.map((event) => (
@@ -51,23 +52,26 @@ const Calendar: React.FC<ICalendar> = ({ session, events, deleteEvent }) => {
       )}
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, rrulePlugin]}
+        views={{
+          '3day': {
+            type: 'timeGrid',
+            duration: { days: 3 },
+          },
+        }}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          right: 'timeGridWeek,3day,timeGridDay',
         }}
         initialView="timeGridWeek"
         editable
         dayMaxEvents
         events={eventsForCalendar}
-        // select={this.handleDateSelect}
-        // eventContent={renderEventContent}
         eventClick={({ event }) => {
           if (confirm(`are you sure you want to delete ${event.title}`)) deleteEvent(event.id)
         }}
-        // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
       />
-    </div>
+    </Box>
   )
 }
 

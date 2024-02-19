@@ -1,8 +1,21 @@
 import React from 'react'
-import { Avatar, Box, TextField, Button, Typography, Grid, Paper } from '@mui/material'
+import {
+  Avatar,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Grid,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grow,
+} from '@mui/material'
+import HourglassBottomTwoToneIcon from '@mui/icons-material/HourglassBottomTwoTone'
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import SendIcon from '@mui/icons-material/Send'
-// import { useChatCompletion } from 'openai-streaming-hooks'
-// import { ChatMessage } from 'openai-streaming-hooks/src/types'
 import EventForm from '../../components/EventForm/EventForm'
 import { EventModel } from '../../models'
 import { ISession } from '../../contexts/SessionContext'
@@ -75,7 +88,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
   const { messages, submit, loading, clearMessages } = useAI({ prompt })
 
   const selectExample = (userInput: string) => {
-    submit(userInput)
+    setInput(userInput)
+    // submit(userInput)
   }
 
   const assistantResponse: Partial<IAssistantResponse> = messages[messages.length - 1]?.data || {}
@@ -103,7 +117,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
         // height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: 'grey.200',
       }}
     >
       {process.env.REACT_APP_DEBUG_MODE && (
@@ -115,32 +128,20 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
           )}
         </div>
       )}
-      <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
+      <Box sx={{ backgroundColor: 'background.default' }}>
         <form onSubmit={handleSend}>
           <Grid container spacing={2}>
-            <Grid item xs={5}>
+            <Grid item xs={7}>
               <TextField
                 fullWidth
                 size="small"
                 autoFocus
                 placeholder="Type a message"
                 variant="outlined"
+                disabled={loading}
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
               />
-            </Grid>
-            <Grid item xs={5}>
-              {Object.keys(examples).map((key, idx) => (
-                <Button
-                  onClick={() => {
-                    // @ts-ignore
-                    selectExample(examples[key])
-                  }}
-                  key={`example-${idx}`}
-                >
-                  {key}
-                </Button>
-              ))}
             </Grid>
             <Grid item xs={2}>
               <Button
@@ -151,12 +152,33 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
                 variant="contained"
                 type="submit"
               >
-                <SendIcon />
+                {loading ? <HourglassBottomTwoToneIcon /> : <SendIcon />}
               </Button>
+            </Grid>
+            <Grid item xs={3}>
+              <FormControl fullWidth>
+                <InputLabel id="label-example" size="small">
+                  Examples
+                </InputLabel>
+                <Select
+                  size="small"
+                  labelId="label-example"
+                  label="Example"
+                  onChange={(event) => selectExample(event.target.value as string)}
+                >
+                  {Object.keys(examples).map((key, idx) => (
+                    // @ts-ignore
+                    <MenuItem value={examples[key]} key={`example-${idx}`}>
+                      {key}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
         </form>
-        <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
+
+        <Box sx={{ flexGrow: 1, overflow: 'auto', pt: 2 }}>
           {messages
             .slice()
             .reverse()
@@ -177,6 +199,11 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
             onCancel={clearMessages}
           />
         </Box>
+      )}
+      {Boolean(messages.length) && (
+        <Button fullWidth onClick={() => clearMessages()} aria-label="close">
+          <ArrowDropUpIcon />
+        </Button>
       )}
     </Box>
   )

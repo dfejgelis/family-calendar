@@ -1,4 +1,5 @@
 import React from 'react'
+import { Box } from '@mui/material'
 import Login from '../containers/Login/Login'
 import { SessionContext, SessionContextType } from '../contexts/SessionContext'
 import { EventsContext, EventsContextType } from '../contexts/EventContext'
@@ -13,10 +14,10 @@ const Home = () => {
     return <Login onSuccess={() => setUser('Diego')} />
 
   return (
-    <>
+    <Box p={3}>
       <Chat {...eventsContext} session={session} />
       <Calendar {...eventsContext} session={session} />
-    </>
+    </Box>
   )
 }
 
