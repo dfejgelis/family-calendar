@@ -66,7 +66,6 @@ where
 -- the "start" value is the datetime when the event start in the format in the format YYYY-MM-DDTHH:MM or null if empty
 -- the "until" value is the datetime when the event should stop to recur in the format YYYY-MM-DDTHH:MM, or null if empty
 -- the "weekdays" value is an array of Weekdays keys for the recurring event in context. null if not specified
--- the "weekdays" value is an array of Weekdays keys for the recurring event in context. null if not specified
 
 ### Instructions for Generating the Message to Paticipant ###
 
