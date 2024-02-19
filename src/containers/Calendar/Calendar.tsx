@@ -6,19 +6,28 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 // import interactionPlugin from '@fullcalendar/interaction'
 import rrulePlugin from '@fullcalendar/rrule'
-import { EventModel } from '../../models'
+import { EventModel, FamilyMemberModel } from '../../models'
 import './Calendar.css'
+import { ISession } from '../../contexts/SessionContext'
 
 interface ICalendar {
+  session: ISession
   events: EventModel[]
   deleteEvent: (_id: string) => void
 }
 
-const Calendar: React.FC<ICalendar> = ({ events, deleteEvent }) => {
+const getFamilyColor = (familyMemebrs: FamilyMemberModel[], seekMemberName?: string | null) => {
+  const index = familyMemebrs.findIndex((member) => member.name === seekMemberName)
+  if (index !== -1) return familyMemebrs[index].color
+  return 'blue'
+}
+
+const Calendar: React.FC<ICalendar> = ({ session, events, deleteEvent }) => {
   let eventsForCalendar: EventInput[] = events.map((event) => {
     return {
       id: event.id as string,
       title: event.title,
+      color: getFamilyColor(session.family, event.familyMember),
       rrule: {
         freq: 'weekly',
         dtstart: event.start,

@@ -15,7 +15,7 @@ const Home = () => {
   return (
     <>
       <Chat {...eventsContext} session={session} />
-      <Calendar {...eventsContext} />
+      <Calendar {...eventsContext} session={session} />
     </>
   )
 }

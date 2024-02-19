@@ -17,7 +17,7 @@ export default function useAI({ prompt }: useAIParams): IuseAI {
   const [messages, setMessages] = useState<IMessage[]>([])
 
   const submit = async (userInput: string) => {
-    console.log('prompt', prompt)
+    if (process.env.REACT_APP_DEBUG_MODE) console.log('prompt', prompt)
     setLoading(true)
     setMessages([...messages, { role: 'user', content: userInput }])
     const response = await createAssistantResponse(userInput, [
