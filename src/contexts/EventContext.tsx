@@ -5,12 +5,36 @@ import { NotificationContext, NotificationsContextType } from './NotificationsCo
 
 const intialEvents: EventModel[] = [
   {
-    id: '123',
+    id: '1',
     title: 'Basket',
     familyMember: 'Julian',
     start: '2024-02-15T10:00',
     until: null,
     weekdays: ['mo', 'th'],
+  },
+  {
+    id: '2',
+    title: 'Musical Comedy',
+    familyMember: 'Sol',
+    start: '2024-02-15T16:00',
+    until: null,
+    weekdays: ['tu', 'th'],
+  },
+  {
+    id: '3',
+    title: 'Swimming',
+    familyMember: 'Diego',
+    start: '2024-02-15T09:00',
+    until: null,
+    weekdays: ['tu', 'th'],
+  },
+  {
+    id: '4',
+    title: 'Rock',
+    familyMember: 'Celeste',
+    start: '2024-02-15T19:00',
+    until: null,
+    weekdays: ['fr', 'su'],
   },
 ]
 

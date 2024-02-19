@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -94,41 +95,46 @@ const EventForm: React.FC<IProps> = ({
         To add a event, please fill in the information below.
       </Typography>
       <Box component="form">
-        <Box mb={2}>
-          <TextField
-            name="title"
-            value={title}
-            margin="dense"
-            id="title"
-            label="title"
-            type="text"
-            fullWidth
-            error={Boolean(errors.title)}
-            variant="outlined"
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              changeData({
-                ...data,
-                [event.target.name]: event.target.value,
-              })
-            }}
-          />
-        </Box>
-        <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Family Member</InputLabel>
-          <Select
-            value={familyMember}
-            labelId="demo-simple-select-label"
-            label="Member"
-            error={Boolean(errors.familyMember?.length)}
-            onChange={(event) => setFamilyMember(event.target.value)}
-          >
-            {familyMembers.map((member) => (
-              <MenuItem value={member.name} key={`member-${member.name}`}>
-                {member.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              autoFocus
+              name="title"
+              value={title}
+              margin="dense"
+              id="title"
+              label="title"
+              type="text"
+              fullWidth
+              error={Boolean(errors.title)}
+              variant="outlined"
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                changeData({
+                  ...data,
+                  [event.target.name]: event.target.value,
+                })
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} pt={3}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Family Member</InputLabel>
+              <Select
+                value={familyMember}
+                labelId="demo-simple-select-label"
+                label="Member"
+                error={Boolean(errors.familyMember?.length)}
+                onChange={(event) => setFamilyMember(event.target.value)}
+              >
+                {familyMembers.map((member) => (
+                  <MenuItem value={member.name} key={`member-${member.name}`}>
+                    {member.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
         <Box display="flex" alignItems="center" mb={2} mt={2}>
           <WeekdayPicker
             error={Boolean(errors.weekdays)}
@@ -136,39 +142,43 @@ const EventForm: React.FC<IProps> = ({
             onWeekdayChange={setWeekdays}
           />
         </Box>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Box mb={2} mt={5}>
-            <DateTimePicker
-              label="Start date"
-              name="start"
-              value={start}
-              ampm={true}
-              minutesStep={30}
-              onChange={(newValue) =>
-                changeData({
-                  ...data,
-                  start: newValue,
-                })
-              }
-            />
-          </Box>
+        <Grid container spacing={2}>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Grid item xs={12} sm={6}>
+              <DateTimePicker
+                label="Start date"
+                name="start"
+                value={start}
+                ampm={true}
+                minutesStep={30}
+                onChange={(newValue) =>
+                  changeData({
+                    ...data,
+                    start: newValue,
+                  })
+                }
+              />
+            </Grid>
 
-          <DateTimePicker
-            label="End date"
-            minDate={start}
-            minutesStep={15}
-            ampm={true}
-            value={until}
-            onChange={(newValue) =>
-              changeData({
-                ...data,
-                until: newValue,
-              })
-            }
-          />
-        </LocalizationProvider>
+            <Grid item xs={12} sm={6}>
+              <DateTimePicker
+                label="End date"
+                minDate={start}
+                minutesStep={15}
+                ampm={true}
+                value={until}
+                onChange={(newValue) =>
+                  changeData({
+                    ...data,
+                    until: newValue,
+                  })
+                }
+              />
+            </Grid>
+          </LocalizationProvider>
+        </Grid>
       </Box>
-      <Stack direction="row" spacing={2} justifyContent="center" mt={3}>
+      <Stack direction="row" spacing={2} justifyContent="center" mt={3} mb={3}>
         <Button color="error" onClick={() => onCancelHandler()}>
           Cancel
         </Button>

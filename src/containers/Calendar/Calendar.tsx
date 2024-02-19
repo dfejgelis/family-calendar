@@ -15,6 +15,7 @@ interface ICalendar {
   session: ISession
   events: EventModel[]
   deleteEvent: (_id: string) => void
+  saveEvent: (_newEvent: EventModel) => void
 }
 
 const getFamilyColor = (familyMemebrs: FamilyMemberModel[], seekMemberName?: string | null) => {

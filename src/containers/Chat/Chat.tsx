@@ -60,6 +60,7 @@ const MessageFC = ({ message }: { message: IMessage }) => {
             ml: isBot ? 1 : 0,
             mr: isBot ? 0 : 1,
             backgroundColor: isBot ? 'primary.light' : 'secondary.light',
+            color: '#fff',
             borderRadius: isBot ? '20px 20px 20px 5px' : '20px 20px 5px 20px',
           }}
         >
@@ -89,8 +90,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
   const { messages, submit, loading, clearMessages } = useAI({ prompt })
 
   const selectExample = (userInput: string) => {
-    setInput(userInput)
-    // submit(userInput)
+    submit(userInput)
   }
 
   const assistantResponse: Partial<IAssistantResponse> = messages[messages.length - 1]?.data || {}
@@ -133,7 +133,27 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
       <Box sx={{ backgroundColor: 'background.default' }}>
         <form onSubmit={handleSend}>
           <Grid container spacing={2}>
-            <Grid item xs={7}>
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth>
+                <InputLabel id="label-example" size="small">
+                  Examples
+                </InputLabel>
+                <Select
+                  size="small"
+                  labelId="label-example"
+                  label="Example"
+                  onChange={(event) => selectExample(event.target.value as string)}
+                >
+                  {Object.keys(examples).map((key, idx) => (
+                    // @ts-ignore
+                    <MenuItem value={examples[key]} key={`example-${idx}`}>
+                      {key}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={10} md={7}>
               <TextField
                 fullWidth
                 size="small"
@@ -156,26 +176,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
               >
                 {loading ? <HourglassBottomTwoToneIcon /> : <SendIcon />}
               </Button>
-            </Grid>
-            <Grid item xs={3}>
-              <FormControl fullWidth>
-                <InputLabel id="label-example" size="small">
-                  Examples
-                </InputLabel>
-                <Select
-                  size="small"
-                  labelId="label-example"
-                  label="Example"
-                  onChange={(event) => selectExample(event.target.value as string)}
-                >
-                  {Object.keys(examples).map((key, idx) => (
-                    // @ts-ignore
-                    <MenuItem value={examples[key]} key={`example-${idx}`}>
-                      {key}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
             </Grid>
           </Grid>
         </form>
@@ -203,7 +203,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ events, session, saveEvent, deleteEvent
         </Box>
       )}
       {Boolean(messages.length) && (
-        <Box>
+        <Box mb={5}>
           <Button
             fullWidth
             onClick={() => clearMessages()}
